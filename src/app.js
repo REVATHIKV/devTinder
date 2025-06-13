@@ -1,120 +1,36 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
-const validator = require("validator") ;
 const cookieParser = require('cookie-parser')
-const jwt = require('jsonwebtoken')
-
-//require("./config/database.js");
 const connectDB  = require("./config/database");
-const User  = require("./models/user");
-
-const {validateSignup} = require("./utils/validation") ;
-const {userAuth} = require("./middlewares/auth");
- 
 const app = express() ;
+const cors = require('cors');
+
+
+
+const authRouter  = require("./routers/auth");
+const profileRouter  = require("./routers/profile");
+const requestRouter  = require("./routers/request");
+const userRouter = require("./routers/user")
 
 
 app.use(express.json());
 app.use(cookieParser());
+//app.use(cors()); // Allow all origins (for dev)
+  
+app.use(cors({
+  origin: 'http://localhost:5173', // Recommended: restrict to your frontend origin
+  methods: ['GET', 'POST','PATCH'],
+  credentials: true,
+}));
+
+app.use("/",authRouter )
+app.use("/",profileRouter )
+app.use("/",requestRouter )
+app.use("/",userRouter )
+
 connectDB()
 .then(()=>{
 console.log('Database connected successfully') ;
-//signup API
-app.post("/signup", async (req,res,next) => {
- 
- // new User() ;
-try{
-
-  const {firstName, lastName, emailId, password} = req.body ;
-
-  const data = await User.findOne({emailId:emailId});
-  if(data){
-    throw new Error("Duplicate entry!! please check if the user is already registered or not")
-  }
-  const passwordHash = await bcrypt.hash(password,10);
-
-  const user = new User({firstName, lastName, emailId, password:passwordHash})
-
-  validateSignup(req.body) ;
   
- await user.save() 
-res.send('User added successfully')
-}catch(err){
-  res.status(400).send("ERROR : "+err) ;
-}
-
-})
-
-
-//login 
-
-app.post('/login', async (req,res) => {
-  try{
-    const {emailId, password} = req.body ;
-
-    if(!emailId || !password) {
-      throw new Error("Enter credentials to login")
-    } 
-
-    if(!validator.isEmail(emailId)){
-      throw new Error("Enter a valid Email Id")
-
-    }
-      const user = await User.findOne({emailId:emailId}) ;
-
-    if(!user){
-      throw new Error("Invalid Credentials");
-    } 
- 
-    const isPasswordValid = await bcrypt.compare(password, user.password ) ;
-      if(isPasswordValid){
-
-        const token = jwt.sign({_id:user._id},"devTinder@123")
-
-        console.log(token);
-        res.cookie( "token",token);
-        res.send("User logged in Successfully!!")
-      }else{
-        throw new Error("Invalid Credentials") ;
-      }
-    }
-  catch(err){
-res.status(400).send("ERROR : " + err)
-  }
-})
-
-
-//user profile
-app.get("/profile",userAuth, async (req,res) => {
-
-  try{
-  const user =  req.user ;
-  
-  res.send(user) ;
-  //res.send("User profile")
-
-  }catch(err){
-
-    res.status(404).send("somethiong went wrong !!" + err) 
-
-  }
-  
- })
-
- app.post("/sendConnectionRequest",userAuth, async(req,res,next) => {
-
-  try{
-
-    const user = req.user ;
-
-    res.send("Connection request sent by " + user.firstName) ;
-
-  }catch(err){
-
-  }
-
- })
-
 
 //get list of all users
  app.get("/feed",async (req,res) => {

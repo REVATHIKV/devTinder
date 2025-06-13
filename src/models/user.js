@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require("validator");
+const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
 
 const userSchema = mongoose.Schema({
     firstName:{type : String,
@@ -39,7 +41,27 @@ if(value <18 ){
         throw new Error ("Invalid URL")
        }
 
-    }}   
+    },
+skills :{type:Array}}   
 },{ timestamps: true }) ;
+
+
+userSchema.methods.getJWT = async function(){
+     
+    const token =  jwt.sign({_id:this._id},"devTinder@123") ;
+     
+ 
+    return token ;
+
+
+}
+
+userSchema.methods.isPasswordValid = async function(passwordInputByUser){
+
+    const passwordHash =  this.password ;
+    const isPasswordValid = await bcrypt.compare(passwordInputByUser,passwordHash) ;
+    return isPasswordValid ;
+
+}
 
 module.exports = mongoose.model('User',userSchema);

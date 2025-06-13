@@ -17,9 +17,21 @@ const validateSignup = (req) => {
 
 }
 
-const validateLogin =  (req) => {
-const {emailId, password} = req ;
+const validateEditProfile =  (req) => {
+
+const updateAllowed = ["firstName","lastName","age","gender","about","photoUrl","skills"] 
+
+const isUpdateAllowed = Object.keys(req.body).every((field) => updateAllowed.includes(field)) ;
+
+if(!isUpdateAllowed){
+    throw new Error ("Invalid edit request")
+}  
+
+
+
+
+
 
 }
 
-module.exports = {validateSignup} ;
+module.exports = {validateSignup,validateEditProfile} ;
