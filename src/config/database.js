@@ -1,15 +1,9 @@
-const mongoose = require('mongoose');
-const connectDB = async() => {
-   await mongoose.connect('mongodb+srv://revathikv90:Q0xwyOegVbAVIrL0@devtinder.n5tvc.mongodb.net/devTinder');
-}
- 
+const mongoose = require("mongoose");
 
-// connectDB()
-// .then(()=>{
-//     console.log('database connected successfully');
-// })
-// .catch((err) => {
-//     console.error('database connection failed ');
-// } )
+const mongoDB_connectionString = process.env.MONGODB_CONNECTION_STRING;
 
-module.exports = connectDB ;
+const connectDB = async () => {
+  await mongoose.connect(mongoDB_connectionString);
+};
+
+module.exports = connectDB;

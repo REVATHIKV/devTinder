@@ -47,8 +47,9 @@ skills :{type:Array}}
 
 
 userSchema.methods.getJWT = async function(){
+    const JWT_SECRET = process.env.JWT_SECRET ;
      
-    const token =  jwt.sign({_id:this._id},"devTinder@123") ;
+    const token =  jwt.sign({_id:this._id},JWT_SECRET) ;
      
  
     return token ;
