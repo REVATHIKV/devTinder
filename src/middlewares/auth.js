@@ -10,7 +10,9 @@ const userAuth = async (req, res, next) => {
     if (!token) {
       throw new Error("Invalid Token");
     }
-    const decodedMessage = await jwt.verify(token, "devTinder@123");
+       const JWT_SECRET = process.env.JWT_SECRET ;
+
+    const decodedMessage = await jwt.verify(token, JWT_SECRET);
 
     if (!decodedMessage) {
       throw new Error("Token expired. Login again");
